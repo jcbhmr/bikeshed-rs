@@ -18,6 +18,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Err(Box::new(error));
     }
     #[cfg(not(unix))]
-    cmd;
-    return Ok(());
+    {
+        let status = cmd.status()?;
+        std::process::exit(status.code());
+    }
 }
