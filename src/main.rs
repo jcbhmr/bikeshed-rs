@@ -5,9 +5,26 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 fn main() -> Result<(), Box<dyn Error>> {
     let xdg_dirs = xdg::BaseDirectories::with_prefix("bikeshed-rs/".to_owned() + VERSION)?;
     let dest = xdg_dirs.get_data_home();
-
     let exe_ext = if cfg!(windows) { ".exe" } else { "" };
-    let mut cmd = std::process::Command::new(dest.join("bikeshed".to_owned() + exe_ext));
+    let bikeshed = dest.join("bikeshed".to_owned() + exe_ext);
+
+    let current_exe = std::env::current_exe()?;
+    let mut old_exe = current_exe.as_os_str().to_owned();
+    old_exe.push(".old");
+    old_exe.push(exe_ext);
+    #[cfg(unix)]
+    {
+        std::fs::rename(&current_exe, &old_exe)?;
+        std::os::unix::fs::symlink(&bikeshed, &current_exe)?;
+        std::fs::remove_file(old_exe)?;
+    }
+    #[cfg(windows)]
+    {
+        std::fs::rename(&current_exe, &old_exe)?;
+        std::os::windows::fs::symlink_file(&bikeshed, &current_exe)?;
+    }
+
+    let mut cmd = std::process::Command::new(bikeshed);
     let args = std::env::args_os().into_iter().collect::<Vec<_>>();
     cmd.args(&args[1..]);
     #[cfg(unix)]

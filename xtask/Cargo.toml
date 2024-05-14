@@ -1,0 +1,16 @@
+[package]
+name = "xtask"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "generate"
+required-features = ["generate"]
+
+[features]
+generate = ["reqwest", "url"]
+
+[dependencies]
+reqwest = { version = "0.12.4", features = ["blocking"], optional = true }
+url = { version = "2.5.0", optional = true }
