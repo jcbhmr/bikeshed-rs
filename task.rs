@@ -1,4 +1,11 @@
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#!/usr/bin/env -S cargo +nightly -Zscript
+---cargo
+[dependencies]
+reqwest = { version = "0.12.4", features = ["blocking"] }
+url = "2.5.0"
+---
+
+fn generate() -> Result<(), Box<dyn std::error::Error>> {
     let targets = vec![
         "arm64-apple-darwin",
         "x86_64-apple-darwin",
@@ -24,4 +31,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         eprintln!("Success!");
     }
     Ok(())
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    match std::env::args().nth(1).ok_or("no task")?.as_str() {
+        "generate" => generate(),
+        _ => Err("no such task".into()),
+    }
 }
