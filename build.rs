@@ -1,19 +1,23 @@
-use std::error::Error;
+fn extract_it() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
+    const ARCHIVE_BYTES: &[u8] = include_bytes!("bikeshed-x86_64-pc-windows-msvc.zip");
+    #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
+    const ARCHIVE_BYTES: &[u8] = include_bytes!("bikeshed-x86_64-apple-darwin.tar.gz");
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    const ARCHIVE_BYTES: &[u8] = include_bytes!("bikeshed-arm64-apple-darwin.tar.gz");
+    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+    const ARCHIVE_BYTES: &[u8] = include_bytes!("bikeshed-x86_64-unknown-linux-gnu.tar.gz");
 
-const VERSION: &str = env!("CARGO_PKG_VERSION");
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let xdg_dirs = xdg::BaseDirectories::with_prefix("bikeshed-rs/".to_owned() + VERSION)?;
+    let xdg_dirs = xdg::BaseDirectories::with_prefix("bikeshed-rs/".to_owned() + env!("CARGO_PKG_VERSION"))?;
     let dest = xdg_dirs.get_data_home();
 
     if !dest.exists() {
-        let target = build_target::target_triple()?;
-        let ext = if target.contains("windows") {
+        let ext = if cfg!(windows) {
             ".zip"
         } else {
             ".tar.gz"
         };
-        let archive = std::fs::File::open("bikeshed-".to_owned() + &target + ext)?;
+        let archive = std::io::Cursor::new(ARCHIVE_BYTES);
         if ext == ".zip" {
             let mut a = zip::ZipArchive::new(archive)?;
             a.extract(&dest)?;
@@ -31,6 +35,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             )?;
         }
     }
-    
+
     Ok(())
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    extract_it()
 }

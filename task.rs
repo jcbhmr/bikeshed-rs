@@ -6,20 +6,20 @@ url = "2.5.0"
 ---
 
 fn generate() -> Result<(), Box<dyn std::error::Error>> {
+    const BB_VERSION: &str = "4.1.6";
     let targets = vec![
         "arm64-apple-darwin",
         "x86_64-apple-darwin",
         "x86_64-pc-windows-msvc",
         "x86_64-unknown-linux-gnu",
     ];
-    let bikeshed_builder_version = "4.1.6.1";
     for target in targets.iter() {
         let ext = if target.contains("windows") {
             ".zip"
         } else {
             ".tar.gz"
         };
-        let url = format!("https://github.com/jcbhmr/bikeshed-builder/releases/download/v{bikeshed_builder_version}/bikeshed-{target}{ext}");
+        let url = format!("https://github.com/jcbhmr/bikeshed-builder/releases/download/v{BB_VERSION}/bikeshed-{target}{ext}");
         let dest = format!("bikeshed-{target}{ext}");
         eprintln!("Downloading {url} to {dest}");
         let mut response = reqwest::blocking::get(&url)?;

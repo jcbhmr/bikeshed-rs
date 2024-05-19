@@ -1,0 +1,4 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/rust",
+    "updateContentCommand": "rustup toolchain install nightly --minimal"
+}
