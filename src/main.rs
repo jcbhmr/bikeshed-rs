@@ -76,6 +76,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     #[cfg(not(unix))]
     {
         let status = cmd.status()?;
-        std::process::exit(status.code());
+        std::process::exit(status.code().ok_or("no code")?);
     }
 }
