@@ -8,8 +8,7 @@ fn extract_it() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
     const ARCHIVE_BYTES: &[u8] = include_bytes!("bikeshed-x86_64-unknown-linux-gnu.tar.gz");
 
-    let xdg_dirs = xdg::BaseDirectories::with_prefix("bikeshed-rs/".to_owned() + env!("CARGO_PKG_VERSION"))?;
-    let dest = xdg_dirs.get_data_home();
+    let dest = dirs::data_local_dir().ok_or("no data local dir")?.join("bikeshed-rs/".to_owned() + env!("CARGO_PKG_VERSION"));
 
     if !dest.exists() {
         let ext = if cfg!(windows) {
